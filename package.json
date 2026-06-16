@@ -1,0 +1,18 @@
+{
+  "name": "vibe-island",
+  "version": "1.0.0",
+  "description": "Claude Dynamic Island for macOS",
+  "main": "main.js",
+  "scripts": {
+    "ui": "electron .",
+    "test": "node --test tests/*.test.js",
+    "hook-test": "node index.js permission"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^42.3.3"
+  }
+}
