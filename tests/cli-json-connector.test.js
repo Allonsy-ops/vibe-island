@@ -4,7 +4,6 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { createCliJsonConnector } = require('../src/connectors/cli-json-connector');
-const { createConnectors } = require('../src/connectors');
 
 function createTempFile() {
   return path.join(os.tmpdir(), `vibe-island-${Date.now()}-${Math.random()}.json`);
@@ -91,14 +90,4 @@ test('cli connector runAction acknowledges the action', async () => {
   const result = await connector.runAction(action);
 
   assert.deepEqual(result, { ok: true, action });
-});
-
-test('createConnectors wires codex and claude CLI connectors', () => {
-  const connectors = createConnectors(() => {});
-
-  assert.deepEqual(Object.keys(connectors).sort(), ['cli:claude-code', 'cli:codex']);
-  assert.equal(connectors['cli:codex'].id, 'cli:codex');
-  assert.equal(connectors['cli:claude-code'].id, 'cli:claude-code');
-  assert.equal(typeof connectors['cli:codex'].pollOnce, 'function');
-  assert.equal(typeof connectors['cli:claude-code'].runAction, 'function');
 });

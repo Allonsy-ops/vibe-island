@@ -1,10 +1,13 @@
 const { spawn } = require('node:child_process');
 const { BaseConnector } = require('./base-connector');
 
-function defaultActivateApp(appName) {
+function defaultActivateApp(appName, spawnImpl = spawn) {
   return new Promise((resolve, reject) => {
-    const script = `tell application "${appName}" to activate`;
-    const child = spawn('osascript', ['-e', script]);
+    const safeAppName = appName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const script = `tell application "${safeAppName}" to activate`;
+    const child = spawnImpl('osascript', ['-e', script]);
+
+    child.on('error', reject);
 
     child.on('exit', (code) => {
       if (code === 0) {
@@ -46,11 +49,16 @@ function createDesktopAppConnector({ id, appName, onEvent, activateApp = default
         return { ok: true };
       }
 
+      if (action.id === 'dismiss') {
+        return { ok: true, dismissed: true };
+      }
+
       return { ok: false, reason: 'unsupported_action' };
     }
   };
 }
 
 module.exports = {
-  createDesktopAppConnector
+  createDesktopAppConnector,
+  defaultActivateApp
 };

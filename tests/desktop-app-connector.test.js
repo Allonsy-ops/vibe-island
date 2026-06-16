@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createDesktopAppConnector } = require('../src/connectors/desktop-app-connector');
+const { EventEmitter } = require('node:events');
+const { createDesktopAppConnector, defaultActivateApp } = require('../src/connectors/desktop-app-connector');
 
 test('desktop connector emits waiting_input and supports open_session', async () => {
   let seen = null;
@@ -24,6 +25,35 @@ test('desktop connector emits waiting_input and supports open_session', async ()
   });
 
   assert.equal(seen.status, 'waiting_input');
+  assert.deepEqual(seen.jump_target, {
+    kind: 'app',
+    value: 'Trae'
+  });
+  assert.deepEqual(seen.actions.map((action) => action.id), ['open_session', 'dismiss']);
   await connector.runAction({ id: 'open_session' });
   assert.equal(activated, 'Trae');
+  assert.deepEqual(await connector.runAction({ id: 'dismiss' }), { ok: true, dismissed: true });
+});
+
+test('defaultActivateApp rejects spawned osascript errors', async () => {
+  const spawned = new EventEmitter();
+  const spawnImpl = () => spawned;
+
+  const promise = defaultActivateApp('Trae', spawnImpl);
+  spawned.emit('error', new Error('spawn failed'));
+
+  await assert.rejects(promise, /spawn failed/);
+});
+
+test('desktop connector returns unsupported for unknown actions', async () => {
+  const connector = createDesktopAppConnector({
+    id: 'desktop:trae',
+    appName: 'Trae',
+    onEvent() {},
+    activateApp() {}
+  });
+
+  const result = await connector.runAction({ id: 'deny' });
+
+  assert.deepEqual(result, { ok: false, reason: 'unsupported_action' });
 });
