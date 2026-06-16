@@ -1,0 +1,14 @@
+{
+  "source_id": "codex",
+  "source_type": "cli",
+  "session_id": "codex-session-1",
+  "task_id": "codex-perm-1",
+  "title": "Codex wants shell permission",
+  "summary": "npm run dev in /Users/runze/vibe-island",
+  "status": "needs_permission",
+  "command_preview": "npm run dev",
+  "jump_target": {
+    "kind": "terminal",
+    "value": "Codex"
+  }
+}

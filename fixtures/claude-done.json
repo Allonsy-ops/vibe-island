@@ -1,0 +1,13 @@
+{
+  "source_id": "claude-code",
+  "source_type": "cli",
+  "session_id": "claude-session-1",
+  "task_id": "claude-done-1",
+  "title": "Claude Code finished task",
+  "summary": "Spec review completed",
+  "status": "done",
+  "jump_target": {
+    "kind": "terminal",
+    "value": "Claude Code"
+  }
+}
