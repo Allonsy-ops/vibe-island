@@ -28,4 +28,9 @@ test('cli connector reads a JSON fixture and emits a normalized event', async ()
   await connector.pollOnce();
   assert.equal(emitted.connector_id, 'cli:codex');
   assert.equal(emitted.status, 'needs_permission');
+  assert.equal(emitted.source_type, 'cli');
+  assert.equal(emitted.source_id, 'codex');
+  assert.equal('priority' in emitted, false);
+  assert.equal('timestamp' in emitted, false);
+  assert.equal('actions' in emitted, false);
 });

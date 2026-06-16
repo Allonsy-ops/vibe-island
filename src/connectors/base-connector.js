@@ -1,5 +1,3 @@
-const { normalizeEvent } = require('../shared/event-schema');
-
 class BaseConnector {
   constructor({ id, sourceType, sourceName, onEvent }) {
     this.id = id;
@@ -9,15 +7,15 @@ class BaseConnector {
   }
 
   emit(event) {
-    const normalized = normalizeEvent({
+    const emittedEvent = {
       ...event,
       connector_id: this.id,
       source_type: event.source_type || this.sourceType,
       source_id: event.source_id || this.sourceName
-    });
+    };
 
-    this.onEvent(normalized);
-    return normalized;
+    this.onEvent(emittedEvent);
+    return emittedEvent;
   }
 }
 
