@@ -24,3 +24,16 @@ test('action runner dispatches to the correct connector', async () => {
     task_id: 'perm-1'
   });
 });
+
+test('action runner throws when the connector is missing', async () => {
+  const runner = createActionRunner({});
+
+  await assert.rejects(
+    runner.run({
+      connector_id: 'cli:missing',
+      id: 'approve_once',
+      task_id: 'perm-1'
+    }),
+    /Missing connector: cli:missing/
+  );
+});
