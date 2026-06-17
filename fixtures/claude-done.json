@@ -3,8 +3,8 @@
   "source_type": "cli",
   "session_id": "claude-session-1",
   "task_id": "claude-done-1",
-  "title": "Claude Code finished task",
-  "summary": "Spec review completed",
+  "title": "Claude Code 已完成任务",
+  "summary": "规格审查已完成",
   "status": "done",
   "jump_target": {
     "kind": "terminal",

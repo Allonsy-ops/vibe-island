@@ -1,11 +1,37 @@
 const { spawn } = require('node:child_process');
 const { BaseConnector } = require('./base-connector');
 
-function defaultActivateApp(appName, spawnImpl = spawn) {
-  return new Promise((resolve, reject) => {
+function buildActivateCommand(appName, platform = process.platform) {
+  if (platform === 'darwin') {
     const safeAppName = appName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    const script = `tell application "${safeAppName}" to activate`;
-    const child = spawnImpl('osascript', ['-e', script]);
+
+    return {
+      command: 'osascript',
+      args: ['-e', `tell application "${safeAppName}" to activate`]
+    };
+  }
+
+  if (platform === 'win32') {
+    return {
+      command: 'powershell.exe',
+      args: [
+        '-NoProfile',
+        '-Command',
+        `Start-Process -FilePath '${appName.replace(/'/g, "''")}'`
+      ]
+    };
+  }
+
+  return {
+    command: 'xdg-open',
+    args: [appName]
+  };
+}
+
+function defaultActivateApp(appName, spawnImpl = spawn, platform = process.platform) {
+  return new Promise((resolve, reject) => {
+    const activation = buildActivateCommand(appName, platform);
+    const child = spawnImpl(activation.command, activation.args);
 
     child.on('error', reject);
 
@@ -60,5 +86,6 @@ function createDesktopAppConnector({ id, appName, onEvent, activateApp = default
 
 module.exports = {
   createDesktopAppConnector,
-  defaultActivateApp
+  defaultActivateApp,
+  buildActivateCommand
 };

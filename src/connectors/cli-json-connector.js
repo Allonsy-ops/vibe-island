@@ -27,19 +27,44 @@ function createCliJsonConnector({ id, filePath, sourceName = 'cli', onEvent }) {
   });
 
   let lastPayload = null;
+  let lastErrorKey = null;
 
   return {
     id,
     async pollOnce() {
-      const raw = fs.readFileSync(filePath, 'utf8');
-      const parsed = JSON.parse(raw);
-      const payloadKey = JSON.stringify(canonicalize(parsed));
-      if (payloadKey === lastPayload) return null;
+      try {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        const parsed = JSON.parse(raw);
+        const payloadKey = JSON.stringify(canonicalize(parsed));
+        if (payloadKey === lastPayload) return null;
 
-      lastPayload = payloadKey;
-      return base.emit(parsed);
+        lastPayload = payloadKey;
+        lastErrorKey = null;
+        return base.emit(parsed);
+      } catch (error) {
+        const errorKey = `${error.code || error.name}:${error.message}`;
+        if (errorKey === lastErrorKey) {
+          return null;
+        }
+
+        lastErrorKey = errorKey;
+        return base.emit({
+          session_id: `${id}:connector`,
+          task_id: `${id}:connector-error`,
+          title: `${sourceName} 连接异常`,
+          summary: error.code === 'ENOENT'
+            ? `未找到事件文件：${filePath}`
+            : `读取事件失败：${error.message}`,
+          status: 'error',
+          actions: [{ id: 'dismiss' }]
+        });
+      }
     },
     async runAction(action) {
+      if (action.id === 'dismiss') {
+        return { ok: true, dismissed: true };
+      }
+
       return { ok: true, action };
     }
   };

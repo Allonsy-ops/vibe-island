@@ -1,0 +1,8 @@
+{
+  "state": "permission_required",
+  "permission_command": "npm run dev",
+  "permission_approve_cmd": "echo approve",
+  "permission_deny_cmd": "echo deny",
+  "conversation_id": "codex-session",
+  "run_id": "codex-1781706277424"
+}

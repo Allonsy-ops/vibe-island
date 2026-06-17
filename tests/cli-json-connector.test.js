@@ -91,3 +91,24 @@ test('cli connector runAction acknowledges the action', async () => {
 
   assert.deepEqual(result, { ok: true, action });
 });
+
+test('cli connector emits one error event when fixture is missing', async () => {
+  const missingFile = path.join(os.tmpdir(), `vibe-island-missing-${Date.now()}.json`);
+  const events = [];
+  const connector = createCliJsonConnector({
+    id: 'cli:codex',
+    filePath: missingFile,
+    sourceName: 'codex',
+    onEvent(event) {
+      events.push(event);
+    }
+  });
+
+  const firstResult = await connector.pollOnce();
+  const secondResult = await connector.pollOnce();
+
+  assert.equal(firstResult.status, 'error');
+  assert.match(firstResult.summary, /未找到事件文件/);
+  assert.equal(secondResult, null);
+  assert.equal(events.length, 1);
+});

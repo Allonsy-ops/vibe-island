@@ -1,20 +1,73 @@
 {
   "name": "vibe-island",
   "version": "1.0.0",
-  "description": "Claude Dynamic Island for macOS",
-  "main": "main.js",
+  "description": "Desktop AI inbox overlay for macOS and Windows",
+  "productName": "Vibe Island",
+  "main": "src/main/index.js",
   "scripts": {
     "ui": "electron .",
     "test": "node --test tests/*.test.js",
-    "demo:permission": "node index.js permission",
-    "demo:done": "node index.js done",
-    "hook-test": "node index.js permission"
+    "demo:permission": "node scripts/demo-event.js permission",
+    "demo:done": "node scripts/demo-event.js done",
+    "hook-test": "node scripts/demo-event.js permission",
+    "emit:event": "node scripts/emit-event.js",
+    "bridge:event": "node scripts/bridge-event.js",
+    "bridge:codex": "node scripts/bridge-source.js codex",
+    "bridge:claude-code": "node scripts/bridge-source.js claude-code",
+    "bridge:qoder": "node scripts/bridge-source.js qoder",
+    "bridge:trae": "node scripts/bridge-source.js trae",
+    "watch:bridge": "node scripts/watch-bridge.js",
+    "watch:codex": "node scripts/watch-source.js codex",
+    "watch:claude-code": "node scripts/watch-source.js claude-code",
+    "watch:qoder": "node scripts/watch-source.js qoder",
+    "watch:trae": "node scripts/watch-source.js trae",
+    "write:source-status": "node scripts/write-source-status.js",
+    "start:codex": "node scripts/start-integration.js codex",
+    "start:claude-code": "node scripts/start-integration.js claude-code",
+    "start:qoder": "node scripts/start-integration.js qoder",
+    "start:trae": "node scripts/start-integration.js trae",
+    "pack:dir": "electron-builder --dir",
+    "pack:mac": "electron-builder --mac zip",
+    "pack:win": "electron-builder --win nsis",
+    "pack:all": "electron-builder --mac zip --win nsis"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "electron": "^42.3.3"
+    "electron": "^42.3.3",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.allonsyops.vibe-island",
+    "files": [
+      "scripts/**/*",
+      "data/**/*",
+      "examples/**/*",
+      "src/**/*",
+      "fixtures/**/*",
+      "config/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        "zip"
+      ],
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

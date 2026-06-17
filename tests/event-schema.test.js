@@ -23,3 +23,34 @@ test('normalizeEvent rejects unknown status values', () => {
     /Unknown status/
   );
 });
+
+test('normalizeEvent rejects missing required fields', () => {
+  assert.throws(
+    () => normalizeEvent({ source_type: 'cli', session_id: '1', task_id: '1', title: 'bad', status: 'done' }),
+    /Missing required event field: source_id/
+  );
+});
+
+test('normalizeEvent preserves action handlers when provided', () => {
+  const normalized = normalizeEvent({
+    source_id: 'codex',
+    source_type: 'cli',
+    session_id: 'abc',
+    task_id: 'task-2',
+    title: 'Codex wants approval',
+    status: 'needs_permission',
+    action_handlers: {
+      approve_once: {
+        kind: 'command',
+        command: 'echo approved'
+      }
+    }
+  });
+
+  assert.deepEqual(normalized.action_handlers, {
+    approve_once: {
+      kind: 'command',
+      command: 'echo approved'
+    }
+  });
+});

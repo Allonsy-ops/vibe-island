@@ -26,6 +26,7 @@ function createBroker() {
   return {
     onUpdate(listener) {
       emitter.on('update', listener);
+      return () => emitter.off('update', listener);
     },
     upsert(event) {
       const normalized = normalizeEvent(event);
@@ -41,6 +42,10 @@ function createBroker() {
     },
     getSnapshot() {
       return snapshot();
+    },
+    dispose() {
+      emitter.removeAllListeners();
+      items.clear();
     }
   };
 }

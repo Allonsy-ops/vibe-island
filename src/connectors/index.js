@@ -1,29 +1,48 @@
-const path = require('node:path');
+const connectorDefinitions = require('../../config/connectors');
+const { assertConnectorDefinitions } = require('./definition-schema');
 const { createCliJsonConnector } = require('./cli-json-connector');
+const { createEventInboxConnector } = require('./event-inbox-connector');
 const { createDesktopAppConnector } = require('./desktop-app-connector');
 
-function createConnectors(onEvent) {
-  return {
-    'cli:codex': createCliJsonConnector({
-      id: 'cli:codex',
-      sourceName: 'codex',
-      filePath: path.join(__dirname, '../../fixtures/codex-permission.json'),
+function createConnector(definition, onEvent) {
+  if (definition.kind === 'cli_json') {
+    return createCliJsonConnector({
+      id: definition.id,
+      sourceName: definition.sourceName,
+      filePath: definition.filePath,
       onEvent
-    }),
-    'cli:claude-code': createCliJsonConnector({
-      id: 'cli:claude-code',
-      sourceName: 'claude-code',
-      filePath: path.join(__dirname, '../../fixtures/claude-done.json'),
+    });
+  }
+
+  if (definition.kind === 'event_inbox') {
+    return createEventInboxConnector({
+      id: definition.id,
+      sourceName: definition.sourceName,
+      filePath: definition.filePath,
       onEvent
-    }),
-    'desktop:trae': createDesktopAppConnector({
-      id: 'desktop:trae',
-      appName: 'Trae',
+    });
+  }
+
+  if (definition.kind === 'desktop_app') {
+    return createDesktopAppConnector({
+      id: definition.id,
+      appName: definition.appName,
       onEvent
-    })
-  };
+    });
+  }
+
+  throw new Error(`Unsupported connector kind: ${definition.kind}`);
+}
+
+function createConnectors(onEvent, definitions = connectorDefinitions) {
+  assertConnectorDefinitions(definitions);
+  return definitions.reduce((result, definition) => {
+    result[definition.id] = createConnector(definition, onEvent);
+    return result;
+  }, {});
 }
 
 module.exports = {
-  createConnectors
+  createConnectors,
+  createConnector
 };

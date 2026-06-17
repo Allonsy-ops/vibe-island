@@ -9,6 +9,15 @@ const PRIORITY_BY_STATUS = {
   idle: 0
 };
 
+const REQUIRED_EVENT_FIELDS = [
+  'source_id',
+  'source_type',
+  'session_id',
+  'task_id',
+  'title',
+  'status'
+];
+
 function defaultActionsFor(status) {
   if (status === 'needs_permission') {
     return [{ id: 'approve_once' }, { id: 'deny' }, { id: 'open_session' }];
@@ -23,6 +32,12 @@ function defaultActionsFor(status) {
 }
 
 function normalizeEvent(input) {
+  for (const field of REQUIRED_EVENT_FIELDS) {
+    if (!input[field]) {
+      throw new Error(`Missing required event field: ${field}`);
+    }
+  }
+
   if (!VALID_STATUSES.includes(input.status)) {
     throw new Error(`Unknown status: ${input.status}`);
   }
@@ -39,6 +54,7 @@ function normalizeEvent(input) {
     timestamp: input.timestamp ?? Date.now(),
     actions: input.actions ?? defaultActionsFor(input.status),
     jump_target: input.jump_target ?? null,
+    action_handlers: input.action_handlers ?? null,
     risk_level: input.risk_level ?? null,
     command_preview: input.command_preview ?? null,
     connector_id: input.connector_id ?? `${input.source_type}:${input.source_id}`
@@ -46,6 +62,7 @@ function normalizeEvent(input) {
 }
 
 module.exports = {
+  REQUIRED_EVENT_FIELDS,
   VALID_STATUSES,
   PRIORITY_BY_STATUS,
   normalizeEvent

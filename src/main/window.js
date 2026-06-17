@@ -1,33 +1,53 @@
 const path = require('node:path');
 const { BrowserWindow, screen } = require('electron');
 
-function createOverlayWindow() {
-  const display = screen.getPrimaryDisplay();
-  const width = 440;
-  const height = 180;
-  const x = Math.floor(display.bounds.width / 2 - width / 2);
-  const y = 10;
+function computeOverlayBounds(display, platform = process.platform) {
+  const width = platform === 'win32' ? 376 : 360;
+  const height = 146;
+  const availableBounds = display.workArea || display.bounds;
 
-  const win = new BrowserWindow({
+  return {
     width,
     height,
-    x,
-    y,
+    x: Math.floor(availableBounds.x + availableBounds.width / 2 - width / 2),
+    y: platform === 'win32' ? availableBounds.y + 10 : availableBounds.y - 4
+  };
+}
+
+function createOverlayWindow() {
+  const display = screen.getPrimaryDisplay();
+  const bounds = computeOverlayBounds(display);
+
+  const win = new BrowserWindow({
+    ...bounds,
     frame: false,
     transparent: true,
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     hasShadow: false,
+    backgroundColor: '#00000000',
+    titleBarStyle: 'hidden',
     webPreferences: {
-      preload: path.join(__dirname, '../../preload.js')
+      preload: path.join(__dirname, './preload.js')
     }
   });
 
-  win.loadFile('index.html');
+  if (typeof win.setVisibleOnAllWorkspaces === 'function') {
+    win.setVisibleOnAllWorkspaces(true, {
+      visibleOnFullScreen: true
+    });
+  }
+
+  if (typeof win.setAlwaysOnTop === 'function') {
+    win.setAlwaysOnTop(true, 'screen-saver');
+  }
+
+  win.loadFile(path.join(__dirname, '../renderer/index.html'));
   return win;
 }
 
 module.exports = {
-  createOverlayWindow
+  createOverlayWindow,
+  computeOverlayBounds
 };

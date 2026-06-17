@@ -1,0 +1,7 @@
+{
+  "status": "permission",
+  "summary": "准备执行 npm run dev",
+  "approve_cmd": "echo approve",
+  "deny_cmd": "echo deny",
+  "open_app": "Trae"
+}

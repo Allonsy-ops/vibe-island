@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createActionRunner } = require('../src/core/action-runner');
+const { createActionRunner, validateAction } = require('../src/core/action-runner');
 
 test('action runner dispatches to the correct connector', async () => {
   let seen = null;
@@ -36,4 +36,10 @@ test('action runner throws when the connector is missing', async () => {
     }),
     /Missing connector: cli:missing/
   );
+});
+
+test('validateAction rejects malformed actions', () => {
+  assert.throws(() => validateAction(null), /must be an object/);
+  assert.throws(() => validateAction({ id: 'approve_once' }), /missing connector_id/);
+  assert.throws(() => validateAction({ connector_id: 'cli:codex' }), /missing id/);
 });

@@ -17,7 +17,8 @@ test('view model promotes waiting items to quick-action mode', () => {
 
   assert.equal(vm.mode, 'quick-action');
   assert.equal(vm.item.source_id, 'codex');
-  assert.equal(vm.actions[0].id, 'approve_once');
+  assert.equal(vm.actions[0].label, '允许一次');
+  assert.equal(vm.title, 'Codex 请求授权');
 });
 
 test('view model uses inbox mode when multiple waiting items exist', () => {
